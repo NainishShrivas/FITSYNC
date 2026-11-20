@@ -1,0 +1,422 @@
+{
+  "dataset_info": {
+    "title": "FITSYNC / Calibrate Health Master Ground-Truth Dataset",
+    "version": "3.0.0",
+    "standards": [
+      "Mifflin-St Jeor (Frankenfield 2005)",
+      "2024 Adult Compendium of Physical Activities",
+      "IOM / NIH ODS Dietary Reference Intakes",
+      "FAO/WHO/UNU 2007 Indispensable Amino Acids",
+      "ACSM Clinical Exercise Guidelines"
+    ]
+  },
+  "biometric_calculation_rules": {
+    "bmr_formulas": {
+      "male": "(10 * weight_kg) + (6.25 * height_cm) - (5 * age) + 5",
+      "female": "(10 * weight_kg) + (6.25 * height_cm) - (5 * age) - 161"
+    },
+    "activity_multipliers": {
+      "sedentary": 1.2,
+      "lightly_active": 1.375,
+      "moderately_active": 1.55,
+      "very_active": 1.725,
+      "extra_active": 1.9
+    },
+    "goal_caloric_offsets": {
+      "Extreme_Fat_Loss": -750,
+      "Fat_Loss": -500,
+      "Maintenance": 0,
+      "Lean_Bulk": 250,
+      "Aggressive_Bulk": 500
+    },
+    "calorie_safety_floors": {
+      "male": 1500,
+      "female": 1200
+    },
+    "bmi_adjusted_protein_threshold": 28.0,
+    "somatotype_macro_splits": {
+      "Ectomorph": { "protein_pct": 25, "carbs_pct": 55, "fats_pct": 20 },
+      "Mesomorph": { "protein_pct": 30, "carbs_pct": 40, "fats_pct": 30 },
+      "Endomorph": { "protein_pct": 35, "carbs_pct": 25, "fats_pct": 40 }
+    }
+  },
+  "micronutrient_and_amino_matrix": {
+    "essential_amino_acids_who_avg_mg_per_kg": {
+      "histidine": 10,
+      "isoleucine": 20,
+      "leucine": 39,
+      "lysine": 30,
+      "saa_met_cys": 15,
+      "aaa_phe_tyr": 25,
+      "threonine": 15,
+      "tryptophan": 4,
+      "valine": 26
+    },
+    "essential_amino_acids_who_safe_mg_per_kg": {
+      "histidine": 12.4,
+      "isoleucine": 24.8,
+      "leucine": 48.36,
+      "lysine": 37.2,
+      "saa_met_cys": 18.6,
+      "aaa_phe_tyr": 31.0,
+      "threonine": 18.6,
+      "tryptophan": 4.96,
+      "valine": 32.24
+    },
+    "dri_targets_by_sex": {
+      "male": {
+        "calcium_mg": 1000,
+        "calcium_71_plus_mg": 1200,
+        "iron_mg": 8,
+        "potassium_mg": 3400,
+        "magnesium_mg": 420,
+        "vitamin_b12_mcg": 2.4,
+        "vitamin_d_iu": 600,
+        "vitamin_d_71_plus_iu": 800,
+        "omega3_ala_g": 1.6,
+        "epa_dha_mg": 500,
+        "fiber_g": 38,
+        "water_l": 3.7,
+        "sodium_max_mg": 2300
+      },
+      "female": {
+        "calcium_mg": 1000,
+        "calcium_51_plus_mg": 1200,
+        "iron_mg": 18,
+        "iron_51_plus_mg": 8,
+        "potassium_mg": 2600,
+        "magnesium_mg": 320,
+        "vitamin_b12_mcg": 2.4,
+        "vitamin_d_iu": 600,
+        "vitamin_d_71_plus_iu": 800,
+        "omega3_ala_g": 1.1,
+        "epa_dha_mg": 500,
+        "fiber_g": 25,
+        "water_l": 2.7,
+        "sodium_max_mg": 2300
+      }
+    },
+    "dietary_deficiency_flags": {
+      "Vegetarian": ["Vitamin_B12", "Heme_Iron", "Omega_3_EPA_DHA", "Complete_Lysine", "Zinc"],
+      "Non-Vegetarian": ["Dietary_Fiber", "Potassium", "Magnesium"]
+    }
+  },
+  "medical_condition_overrides": {
+    "Joint_Pain": {
+      "label": "Joint Pain / Knee Issues",
+      "banned_tags": ["high_impact", "heavy_axial_loading"],
+      "replacements": {
+        "Jump Rope": "Stationary Cycling",
+        "Squats / Deadlifts": "Goblet / Box Squats"
+      },
+      "rules": ["Replace_High_Impact_With_Low_Impact", "Emphasize_Omega3_AntiInflammatory"]
+    },
+    "Hypertension": {
+      "label": "Hypertension / High BP",
+      "banned_tags": ["heavy_valsalva", "prolonged_isometric"],
+      "max_hr_pct": 75,
+      "sodium_cap_mg": 1500,
+      "replacements": {
+        "Plank Hold": "Dynamic Dead Bugs",
+        "Jump Rope": "Stationary Cycling"
+      },
+      "rules": ["Cap_Intensity_75_HRmax", "Avoid_Valsalva_Breath_Hold", "Sodium_Cap_1500mg"]
+    },
+    "Diabetes_Type_2": {
+      "label": "Diabetes Type 2",
+      "banned_tags": [],
+      "carb_cap_per_meal_g": 45,
+      "daily_carb_cap_g": 180,
+      "replacements": {},
+      "rules": ["Low_GI_Carbs_Only", "Pre_Exercise_Glycemia_90_250", "Monitor_Hypoglycemia"]
+    },
+    "Asthma": {
+      "label": "Asthma",
+      "banned_tags": ["high_impact", "sprint_hiit", "cold_air_cardio"],
+      "mandatory_warmup_mins": 10,
+      "replacements": {
+        "Jump Rope": "Stationary Cycling"
+      },
+      "rules": ["Mandatory_10min_Warmup", "Indoor_Steady_Cardio", "Bronchodilator_Reminder"]
+    },
+    "Kidney_Stones": {
+      "label": "Kidney Stones",
+      "banned_tags": [],
+      "water_target_l": 3.5,
+      "sodium_cap_mg": 2000,
+      "avoid_high_oxalate": ["Spinach", "Almonds"],
+      "oxalate_swaps": {
+        "Spinach": "Cucumber & Bell Peppers",
+        "Almonds": "Pumpkin Seeds"
+      },
+      "replacements": {},
+      "rules": ["Hydration_Target_3_5L", "Sodium_Under_2000mg", "Moderate_Animal_Protein", "Pair_Calcium_With_Meals", "Mid_Workout_Hydration_Alerts"]
+    }
+  },
+  "cheat_meal_calibration_engine": {
+    "burn_formula": "compendium_net",
+    "daily_extra_kcal_cap": 300,
+    "rollover_days_if_zero_remaining": 4,
+    "preferred_calibration_exercise_id": "ex_04"
+  },
+  "exercises": [
+    {
+      "id": "ex_01",
+      "name": "Squats / Deadlifts",
+      "shortName": "Squats",
+      "category": "Legs",
+      "met": 5.0,
+      "impact": "Medium",
+      "tags": ["heavy_axial_loading"],
+      "defaultSets": 3,
+      "defaultReps": 12,
+      "defaultWeightKg": 40,
+      "mode": "reps",
+      "notes": "Controlled tempo, full depth within comfortable joint range."
+    },
+    {
+      "id": "ex_02",
+      "name": "Resistance Training",
+      "shortName": "Dumbbell Press",
+      "category": "Strength",
+      "met": 3.5,
+      "impact": "Low",
+      "tags": [],
+      "defaultSets": 3,
+      "defaultReps": 12,
+      "defaultWeightKg": 16,
+      "mode": "reps",
+      "notes": "Exhale on exertion; never hold breath during reps."
+    },
+    {
+      "id": "ex_03",
+      "name": "Bodyweight Calisthenics",
+      "shortName": "Push-Ups",
+      "category": "Chest",
+      "met": 3.5,
+      "impact": "Low",
+      "tags": [],
+      "defaultSets": 3,
+      "defaultReps": 12,
+      "defaultWeightKg": 0,
+      "mode": "reps",
+      "notes": "Scale incline or tempo for joint comfort and steady breathing."
+    },
+    {
+      "id": "ex_04",
+      "name": "Stationary Cycling",
+      "shortName": "Stationary Cycling",
+      "category": "Cardio",
+      "met": 6.8,
+      "impact": "Low",
+      "tags": ["indoor_steady"],
+      "defaultSets": 1,
+      "defaultDurationSec": 1200,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "Joint-friendly aerobic conditioning at moderate cadence."
+    },
+    {
+      "id": "ex_05",
+      "name": "Jump Rope",
+      "shortName": "Jump Rope",
+      "category": "Cardio",
+      "met": 11.8,
+      "impact": "High",
+      "tags": ["high_impact", "sprint_hiit", "cold_air_cardio"],
+      "defaultSets": 3,
+      "defaultDurationSec": 120,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "High-impact rhythmic conditioning on shock-absorbing surface."
+    },
+    {
+      "id": "ex_06",
+      "name": "Brisk Walking",
+      "shortName": "Brisk Walking",
+      "category": "Cardio",
+      "met": 4.8,
+      "impact": "Low",
+      "tags": ["indoor_steady"],
+      "defaultSets": 1,
+      "defaultDurationSec": 1800,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "3.5–3.9 mph steady pace; universally safe recovery & fat-burn cardio."
+    },
+    {
+      "id": "ex_07",
+      "name": "Plank Hold",
+      "shortName": "Plank Hold",
+      "category": "Core",
+      "met": 2.8,
+      "impact": "Low",
+      "tags": ["prolonged_isometric", "heavy_valsalva"],
+      "defaultSets": 3,
+      "defaultDurationSec": 45,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "Brace core lightly while maintaining smooth nasal breathing."
+    },
+    {
+      "id": "ex_08",
+      "name": "Swimming Laps",
+      "shortName": "Swimming Laps",
+      "category": "Cardio",
+      "met": 5.8,
+      "impact": "Low",
+      "tags": ["indoor_steady"],
+      "defaultSets": 1,
+      "defaultDurationSec": 1200,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "Zero-impact full-body freestyle laps; ideal for joint pain & asthma."
+    },
+    {
+      "id": "ex_09",
+      "name": "Rowing Machine / Elliptical",
+      "shortName": "Rowing / Elliptical",
+      "category": "Cardio",
+      "met": 5.0,
+      "impact": "Low",
+      "tags": ["indoor_steady"],
+      "defaultSets": 1,
+      "defaultDurationSec": 900,
+      "defaultWeightKg": 0,
+      "mode": "duration",
+      "notes": "Smooth low-impact endurance pull or stride."
+    }
+  ],
+  "meal_templates": {
+    "Vegetarian": [
+      {
+        "day": 1,
+        "meals": [
+          { "slot": "Breakfast", "name": "Oats & Chia Soy Bowl", "protein": 24, "carbs": 52, "fats": 12, "gi": "low", "tags": ["chia", "oats"] },
+          { "slot": "Lunch", "name": "Yellow Dal, Quinoa & Spinach", "protein": 32, "carbs": 72, "fats": 11, "gi": "low", "tags": ["spinach"] },
+          { "slot": "Dinner", "name": "Paneer, Tofu & Broccoli Stir-Fry", "protein": 35, "carbs": 22, "fats": 26, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Snack", "name": "Roasted Chana & Almonds", "protein": 9, "carbs": 20, "fats": 9, "gi": "low", "tags": ["almonds"] }
+        ]
+      },
+      {
+        "day": 2,
+        "meals": [
+          { "slot": "Breakfast", "name": "Moong Dal Chilla & Mint Curd", "protein": 26, "carbs": 46, "fats": 10, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Lunch", "name": "Rajma, Brown Rice & Cucumber", "protein": 28, "carbs": 76, "fats": 8, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Soya Chunk Curry & 2 Multigrain Roti", "protein": 42, "carbs": 48, "fats": 9, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Greek Yogurt & Flaxseeds", "protein": 15, "carbs": 10, "fats": 8, "gi": "low", "tags": ["calcium"] }
+        ]
+      },
+      {
+        "day": 3,
+        "meals": [
+          { "slot": "Breakfast", "name": "Tofu Scramble & 2 Wheat Toast", "protein": 28, "carbs": 38, "fats": 12, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Chickpea & Millet Bowl", "protein": 26, "carbs": 68, "fats": 10, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Grilled Paneer Tikka & Veggies", "protein": 38, "carbs": 18, "fats": 24, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Snack", "name": "Soy Protein Shake & Apple", "protein": 24, "carbs": 26, "fats": 2, "gi": "low", "tags": [] }
+        ]
+      },
+      {
+        "day": 4,
+        "meals": [
+          { "slot": "Breakfast", "name": "Paneer Bhurji & 2 Besan Chilla", "protein": 32, "carbs": 34, "fats": 16, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Lunch", "name": "Black Bean, Corn & Rice Bowl", "protein": 26, "carbs": 70, "fats": 11, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Palak Tofu & 2 Jowar Roti", "protein": 30, "carbs": 44, "fats": 14, "gi": "low", "tags": ["spinach"] },
+          { "slot": "Snack", "name": "Sprouted Moong & Pumpkin Seeds", "protein": 16, "carbs": 22, "fats": 8, "gi": "low", "tags": [] }
+        ]
+      },
+      {
+        "day": 5,
+        "meals": [
+          { "slot": "Breakfast", "name": "Overnight Protein Oats & Chia", "protein": 30, "carbs": 50, "fats": 10, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Masoor Dal, Brown Rice & Veg", "protein": 25, "carbs": 74, "fats": 9, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Soya Keema & Whole Pita", "protein": 40, "carbs": 42, "fats": 8, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Cottage Cheese & Walnuts", "protein": 18, "carbs": 8, "fats": 14, "gi": "low", "tags": ["calcium"] }
+        ]
+      },
+      {
+        "day": 6,
+        "meals": [
+          { "slot": "Breakfast", "name": "Greek Yogurt, Hemp & Berries", "protein": 26, "carbs": 36, "fats": 11, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Lunch", "name": "Edamame, Quinoa & Sesame Bowl", "protein": 32, "carbs": 60, "fats": 14, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Kadai Paneer & 2 Multigrain Roti", "protein": 34, "carbs": 42, "fats": 20, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Snack", "name": "Peanut Butter (15g) & Banana", "protein": 7, "carbs": 30, "fats": 8, "gi": "medium", "tags": [] }
+        ]
+      },
+      {
+        "day": 7,
+        "meals": [
+          { "slot": "Breakfast", "name": "Ragi Malt & Tofu Sandwich", "protein": 24, "carbs": 52, "fats": 10, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Lunch", "name": "Chana Masala, Jeera Rice & Raita", "protein": 28, "carbs": 72, "fats": 12, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Dinner", "name": "Grilled Tempeh & Sweet Potato", "protein": 34, "carbs": 44, "fats": 12, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Roasted Makhana & Almonds", "protein": 8, "carbs": 22, "fats": 10, "gi": "low", "tags": ["almonds"] }
+        ]
+      }
+    ],
+    "Non-Vegetarian": [
+      {
+        "day": 1,
+        "meals": [
+          { "slot": "Breakfast", "name": "Egg White & Spinach Omelet + Toast", "protein": 32, "carbs": 35, "fats": 11, "gi": "low", "tags": ["spinach"] },
+          { "slot": "Lunch", "name": "Grilled Chicken, Brown Rice & Asparagus", "protein": 48, "carbs": 55, "fats": 12, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Pan-Seared Salmon & Sweet Potato", "protein": 38, "carbs": 38, "fats": 20, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Snack", "name": "Greek Yogurt & Walnuts", "protein": 15, "carbs": 12, "fats": 11, "gi": "low", "tags": ["calcium"] }
+        ]
+      },
+      {
+        "day": 2,
+        "meals": [
+          { "slot": "Breakfast", "name": "Scrambled Whole Eggs + Oats", "protein": 28, "carbs": 44, "fats": 14, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Fish Curry (Rohu/Tilapia) & Quinoa", "protein": 42, "carbs": 52, "fats": 10, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Dinner", "name": "Lean Chicken Kheema & 2 Roti", "protein": 44, "carbs": 42, "fats": 11, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Boiled Eggs (2) & Almonds", "protein": 14, "carbs": 4, "fats": 13, "gi": "low", "tags": ["almonds"] }
+        ]
+      },
+      {
+        "day": 3,
+        "meals": [
+          { "slot": "Breakfast", "name": "Chicken Sausage & Egg Scramble", "protein": 34, "carbs": 30, "fats": 14, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Tandoori Chicken & Quinoa Salad", "protein": 46, "carbs": 48, "fats": 10, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Baked Fish, Broccoli & Mash", "protein": 38, "carbs": 40, "fats": 10, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Snack", "name": "Whey Isolate & Banana", "protein": 26, "carbs": 28, "fats": 2, "gi": "medium", "tags": [] }
+        ]
+      },
+      {
+        "day": 4,
+        "meals": [
+          { "slot": "Breakfast", "name": "Smoked Salmon & Eggs on Rye", "protein": 30, "carbs": 32, "fats": 16, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Lunch", "name": "Lean Chicken & Black Bean Bowl", "protein": 45, "carbs": 58, "fats": 11, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Grilled Prawns & Soba Noodles", "protein": 36, "carbs": 46, "fats": 8, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Cottage Cheese & Chia Berries", "protein": 18, "carbs": 14, "fats": 8, "gi": "low", "tags": ["calcium"] }
+        ]
+      },
+      {
+        "day": 5,
+        "meals": [
+          { "slot": "Breakfast", "name": "High-Protein Egg-White Oats", "protein": 32, "carbs": 52, "fats": 8, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Tuna Salad Whole-Grain Wrap", "protein": 40, "carbs": 44, "fats": 12, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Dinner", "name": "Grilled Lean Steak/Thigh & Potato", "protein": 42, "carbs": 40, "fats": 16, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Hard-Boiled Eggs (2) & Apple", "protein": 13, "carbs": 20, "fats": 10, "gi": "low", "tags": [] }
+        ]
+      },
+      {
+        "day": 6,
+        "meals": [
+          { "slot": "Breakfast", "name": "Whole & White Omelet + Toast", "protein": 30, "carbs": 32, "fats": 14, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Chicken Tikka, Brown Rice & Raita", "protein": 46, "carbs": 54, "fats": 12, "gi": "low", "tags": ["calcium"] },
+          { "slot": "Dinner", "name": "Herb Mackerel/Salmon & Quinoa", "protein": 36, "carbs": 38, "fats": 18, "gi": "low", "tags": ["omega3"] },
+          { "slot": "Snack", "name": "Greek Yogurt & Pumpkin Seeds", "protein": 18, "carbs": 10, "fats": 9, "gi": "low", "tags": ["calcium"] }
+        ]
+      },
+      {
+        "day": 7,
+        "meals": [
+          { "slot": "Breakfast", "name": "Protein Pancakes", "protein": 34, "carbs": 46, "fats": 8, "gi": "low", "tags": [] },
+          { "slot": "Lunch", "name": "Lemon-Herb Chicken & Millet", "protein": 44, "carbs": 54, "fats": 11, "gi": "low", "tags": [] },
+          { "slot": "Dinner", "name": "Garlic Prawns, Zoodles & Rice", "protein": 36, "carbs": 40, "fats": 9, "gi": "low", "tags": [] },
+          { "slot": "Snack", "name": "Chicken Strips & Almonds", "protein": 22, "carbs": 6, "fats": 12, "gi": "low", "tags": ["almonds"] }
+        ]
+      }
+    ]
+  }
+}
